@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for mockery.
 GH_REPO="https://github.com/vektra/mockery"
 TOOL_NAME="mockery"
 TOOL_TEST="mockery --help"
@@ -14,7 +13,6 @@ fail() {
 
 curl_opts=(-fsSL)
 
-# NOTE: You might want to remove this if mockery is not hosted on GitHub releases.
 if [ -n "${GITHUB_API_TOKEN:-}" ]; then
 	curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
 fi
@@ -27,25 +25,66 @@ sort_versions() {
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
 		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
+		sed 's/^v//'
+}
+
+get_platform() {
+	case "$(uname -s)" in
+	Darwin) echo "Darwin" ;;
+	Linux) echo "Linux" ;;
+	*) fail "Unsupported platform: $(uname -s)" ;;
+	esac
+}
+
+get_arch() {
+	case "$(uname -m)" in
+	x86_64 | amd64) echo "x86_64" ;;
+	arm64 | aarch64) echo "arm64" ;;
+	*) fail "Unsupported architecture: $(uname -m)" ;;
+	esac
+}
+
+sha256() {
+	if command -v sha256sum >/dev/null; then
+		sha256sum "$1" | cut -d' ' -f1
+	else
+		shasum -a 256 "$1" | cut -d' ' -f1
+	fi
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if mockery has other means of determining installable versions.
 	list_github_tags
 }
 
 download_release() {
-	local version filename url
+	local version filename asset url
 	version="$1"
 	filename="$2"
-
-	# TODO: Adapt the release URL convention for mockery
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	asset="${TOOL_NAME}_${version}_$(get_platform)_$(get_arch).tar.gz"
+	url="$GH_REPO/releases/download/v${version}/${asset}"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
+
+	verify_checksum "$version" "$asset" "$filename"
+}
+
+verify_checksum() {
+	local version asset filename checksums_url expected actual
+	version="$1"
+	asset="$2"
+	filename="$3"
+	checksums_url="$GH_REPO/releases/download/v${version}/checksum.txt"
+
+	echo "* Verifying checksum..."
+	expected="$(curl "${curl_opts[@]}" "$checksums_url" | grep " ${asset}\$" | cut -d' ' -f1)" ||
+		fail "Could not fetch checksum from $checksums_url"
+	actual="$(sha256 "$filename")"
+
+	if [ -z "$expected" ] || [ "$expected" != "$actual" ]; then
+		rm -f "$filename"
+		fail "Checksum mismatch for $asset (expected: ${expected:-none}, actual: $actual)"
+	fi
 }
 
 install_version() {
@@ -61,7 +100,6 @@ install_version() {
 		mkdir -p "$install_path"
 		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
 
-		# TODO: Assert mockery executable exists.
 		local tool_cmd
 		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
 		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."

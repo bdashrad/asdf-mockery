@@ -1,14 +1,14 @@
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     cooldown:
       default-days: 7
-  - package-ecosystem: "docker"
-    directory: "/.github/actionlint"
+  - package-ecosystem: pre-commit
+    directory: /
     schedule:
-      interval: "weekly"
+      interval: weekly
     cooldown:
       default-days: 7

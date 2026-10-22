@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+cat <<'HELP'
+mockery generates mock implementations of Go interfaces.
+
+Prebuilt release binaries are downloaded from GitHub for macOS and Linux
+(x86_64 and arm64) and verified against the checksum published with each release.
+HELP

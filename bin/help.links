@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+cat <<'HELP'
+Documentation: https://vektra.github.io/mockery/latest/
+Releases: https://github.com/vektra/mockery/releases
+Plugin: https://github.com/bdashrad/asdf-mockery
+HELP

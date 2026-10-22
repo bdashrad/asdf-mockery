@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+cat <<'HELP'
+bash
+curl
+tar
+sha256sum or shasum
+HELP

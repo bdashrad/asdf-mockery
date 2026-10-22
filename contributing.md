@@ -9,7 +9,23 @@
 ```shell
 asdf plugin add shellcheck
 asdf plugin add shfmt
+asdf plugin add pre-commit
 asdf install
+```
+
+## Pre-commit
+
+Install the [pre-commit](https://pre-commit.com) hooks once per clone:
+
+```shell
+asdf install
+pre-commit install
+```
+
+The same hooks run in CI on every pull request. To run them on all files:
+
+```shell
+pre-commit run --all-files
 ```
 
 ## Linting

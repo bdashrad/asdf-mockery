@@ -1,11 +1,15 @@
 name: Lint
 
 on:
-  pull_request_target:
+  # pull_request_target so the check runs for PRs from forks; this workflow never checks out or runs PR code.
+  pull_request_target: # zizmor: ignore[dangerous-triggers]
     types:
       - opened
       - edited
       - synchronize
+
+permissions:
+  pull-requests: read
 
 jobs:
   semantic-pr:

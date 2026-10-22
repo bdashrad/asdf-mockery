@@ -1,0 +1,93 @@
+---
+repos:
+  # Common pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args:
+          - --fix=lf
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-yaml
+        args:
+          - '--allow-multiple-documents'
+      - id: check-shebang-scripts-are-executable
+      - id: check-executables-have-shebangs
+      - id: check-case-conflict
+      - id: check-symlinks
+      - id: destroyed-symlinks
+      - id: no-commit-to-branch
+        args:
+          - --branch
+          - main
+
+  # Scan for secrets
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: 83d9cd684c87d95d656c1458ef04895a7f1cbd8e # v8.30.1
+    hooks:
+      - id: gitleaks
+
+  # Spelling
+  - repo: https://github.com/crate-ci/typos
+    rev: 7f9d0819ca1c008ade73f4b41fa9d258d48f605b # v1.51.1
+    hooks:
+      - id: typos
+
+  # Markdown
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: 916ad0aaa108c64d294101002066f530ea170b10 # v0.23.3
+    hooks:
+      - id: markdownlint-cli2
+
+  # Shellcheck
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: 99470f5e12208ff0fb17ab81c3c494f7620a1d8d # v0.11.0
+    hooks:
+      - id: shellcheck
+        args:
+          - --severity=warning
+
+  # Shell formatting
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: 479be5958357ba5ab65ce47172117348516860e9 # v3.14.1-1
+    hooks:
+      - id: shfmt
+        args:
+          - --language-dialect
+          - bash
+          - --write
+
+  # YAML
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: cba56bcde1fdd01c1deb3f945e69764c291a6530 # frozen: v1.38.0
+    hooks:
+      - id: yamllint
+        types:
+          - file
+          - yaml
+        args:
+          - --config-file=.yamllint.yml
+
+  # Schema validation for workflows, composite actions and Dependabot (actionlint covers workflow logic)
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0494aa7fa1314e98913a41227d8f0a515b2c1049 # 0.38.2
+    hooks:
+      - id: check-github-workflows
+      - id: check-github-actions
+      - id: check-dependabot
+
+  # GitHub Actions static analysis
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: fa412071e4f5d44d44f9e365f4676f9df92456a2 # v1.30.1
+    hooks:
+      - id: zizmor
+
+  # GitHub Actions linting
+  - repo: https://github.com/kjanat/actionlint
+    rev: 08bb2c4f0d039744455b87aef1c647fb8b66d37b # 1.17.0
+    hooks:
+      - id: actionlint
